@@ -228,6 +228,8 @@
 - 加载字体（@font-face）
 - 过渡（transition）
 - 动画（animation）
+- 多列布局（multi-column layout）
+- flex布局
 - CSS3选择器
   - E:last-child 匹配父元素的最后一个子元素E
   - E:nth-child()匹配父元素的第n个子元素E

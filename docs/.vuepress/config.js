@@ -6,6 +6,7 @@ module.exports = {
       sidebar: [
         ['/notes/html', 'HTML'],
         ['/notes/css', 'CSS'],
+        ['/notes/js', 'JS'],
       ],
       nav: [
           { text: 'github', link: 'https://github.com/fyodor-rs' },
