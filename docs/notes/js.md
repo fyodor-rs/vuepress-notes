@@ -33,7 +33,9 @@ typeof f //'function'
 
 ### instanceof
 
-> 判断引用类型的常用方式：instanceof。instanceof的原理是基于原型链的查询，只要处于原型链中，判断永远为true。但是不能直接判断字面量的基本数据类型。
+> 判断引用类型的常用方式：instanceof。instanceof的原理是基于原型链的查询，只要处于原型链中，判断永远为true。
+>
+> 但是不能直接判断字面量的基本数据类型，而且左边必须是对象和构造函数，否则会抛出TypeError的错误
 
 ```javascript
 const Person =function(){}
@@ -41,6 +43,60 @@ const p1 =new Person()
 p1 instanceof Person //true
 var str= 'hello'
 str instanceof String //false
+```
+
+### Object.prototype.toString.call()
+
+> 所有的数据类型都可以用Object.prototype.toString.call()来检测，而且非常的精准。
+
+```javascript
+var a = 123;
+console.log(Object.prototype.toString.call(a));    // [object Number]
+var b = "string";
+console.log(Object.prototype.toString.call(b));    // [object String]
+var c = [];
+console.log(Object.prototype.toString.call(c));    // [object Array]
+var d = {};
+console.log(Object.prototype.toString.call(d));    // [object Object]
+var e = true;
+console.log(Object.prototype.toString.call(e));    // [object Boolean]
+var f =  null;
+console.log(Object.prototype.toString.call(f));    // [object Null]
+var g;
+console.log(Object.prototype.toString.call(g));    // [object Undefined]
+var h = function () {};
+console.log(Object.prototype.toString.call(h));    // [object Function]
+var A = new Number();
+console.log(Object.prototype.toString.call(A));    // [object Number]
+```
+
+### construtor
+
+> construtor使用的也是原型链的知识。返回对创建此对象的数组的引用。
+>
+> 但是无法检测null和undefined的值。
+
+```javascript
+var a = 123;
+console.log( a.constructor == Number);    // true
+var b = "string";
+console.log( b.constructor == String);    // true
+var c = [];
+console.log( c.constructor == Array);    // true
+var d = {};
+console.log( d.constructor == Object);    // true
+var e = true;
+console.log( e.constructor == Boolean);    // true
+var f =  null;
+console.log( f.constructor == Null);    //  TypeError: Cannot read property 'constructor' of null
+var g;
+console.log( g.constructor == Undefined);    // Uncaught TypeError: Cannot read property 'constructor' of undefined
+var h = function () {};
+console.log( h.constructor == Function);    // true
+var A = new Number();
+console.log( A.constructor == Number);    // true
+var A = new Number();
+console.log( A.constructor == Object);    // false
 ```
 
 ## 自定义instanceof行为
@@ -102,16 +158,6 @@ function is(x, y) {
 }
 ```
 
-## 执行上下文
-
-> [链接](https://www.cnblogs.com/gaosirs/p/10569973.html)
->
-> [链接1](https://juejin.im/post/5c64d15d6fb9a049d37f9c20#heading-16)
-
-## 作用域和作用域链
-
-> [链接](https://www.cnblogs.com/gaosirs/p/10569973.html)
-
 ## 闭包
 
 > 闭包就是当前作用域中存在着对父级作用域的引用。或者：
@@ -159,20 +205,207 @@ x()
 
 ## 常见的数组方法
 
+> `push(value)`将value添加到数组的最后，返回数组长度（改变元素组）
 
+```javascript
+let a= [1,2,3,4,5]
+let result = a.push(6);
+console.log(result);//6返回素组长度
+console.log(a);//[1,2,3,4,5,6]原数组被改变
+```
+
+> `unshift()`添加元素到数组的开头，返回数组的长度（改变原数组）
+
+```javascript
+let a = [1, 2, 3, 4, 5]
+let result = a.unshift(1)
+console.log(result)           // 6
+console.log(a)                // [1, 1, 2, 3, 4, 5]
+```
+
+> `pop()`删除数组中最后一个元素，返回被删除元素（改变原数组）
+
+```javascript
+let a = [5]
+let result = a.pop()
+console.log(result)   // 5
+console.log(a)        // []
+```
+
+> `shift()`删除数组第一个元素，返回被删除元素（改变原数组）
+
+```javascript
+let a = [5]
+let result = a.shift()
+console.log(result)      // 5
+console.log(a)           // []
+```
+
+> `join（value）`将数组用value连接为字符串（不改变原数组）
+
+```javascript
+// Base
+let a = [1, 2, 3, 4, 5]
+let result = a.join(',')
+console.log(result)   // '1,2,3,4,5'
+console.log(a)        // [1, 2, 3, 4, 5]
+
+// More
+let obj = {
+  toString() {
+    console.log('调用了toString()方法！')
+    return 'a'
+  },
+  toValue() {
+    console.log('toValue()方法！')
+    return 'b'
+  }
+}
+result = a.join(obj) // 使用对象时会调用对象自身的toString方法转化为字符串，我们这里重写了toString，从而覆盖了原型链上的toString
+// 调用了toString()方法！
+console.log(result)   // 1a2a3a4a5
+console.log(a)        // [1, 2, 3, 4, 5]
+
+// join的一个相对的方法是字符串的split方法
+console.log('1a2a3a4a5'.split('a')) // [1, 2, 3, 4, 5]
+```
+
+> `slice(start, end)`返回新数组，包含原数组索引start的值到索引end的值，不包含end(不改变原数组)
+
+```javascript
+// Base
+let a = [1, 2, 3, 4, 5]
+let result = a.slice(2, 4)
+console.log(result)   // [3, 4]
+console.log(a)        // [1, 2, 3, 4, 5]
+
+// More
+console.log(a.slice(1))         // [2, 3, 4, 5]   只有一个参数且不小于0，则从此索引开始截取到数组的末位
+console.log(a.slice(-1))        // [5]            只有一个参数且小于0，则从倒数|start|位截取到数组的末位
+console.log(a.slice(-1, 1))     // []             反向截取，不合法返回空数组
+console.log(a.slice(1, -1))     // [2, 3, 4]      从第一位截取到倒数第一位，不包含倒数第一位
+console.log(a.slice(-1, -2))    // []             反向截取，不合法返回空数组
+console.log(a.slice(-2, -1))    // [4]            倒数第二位截取到倒数第一位
+```
+
+> `splice(index, count, value)`从索引为index处删除count个元素，插入value(改变原数组)
+
+```javascript
+// Base
+let a = [1, 2, 3, 4, 5]
+let result = a.splice(1, 2, 0)
+console.log(result)   // [2, 3]
+console.log(a)        // [1, 0, 4, 5]
+
+// More
+a = [1, 2, 3, 4, 5]
+console.log(a.splice(-2))                   // [4. 5]
+console.log(a)                              // [1, 2, 3]
+
+a = [1, 2, 3, 4, 5]
+console.log(a.splice(-1))                   // [5]
+console.log(a)                              // [1, 2, 3, 4]               当参数为单个且小于0时，将从数组的倒数|index|位截取到数组的末位
+
+a = [1, 2, 3, 4, 5]
+console.log(a.splice(0))                    // [1, 2, 3, 4, 5]
+console.log(a)                              // []
+
+a = [1, 2, 3, 4, 5]
+console.log(a.splice(1))                    // [2, 3, 4, 5]
+console.log(a)                              // [1]                        当参数为单个且不小于0时，将从当前数代表的索引位开始截取到数组的末位
+
+a = [1, 2, 3, 4, 5]
+console.log(a.splice(-1, 2))                // [5]
+console.log(a)                              // [1, 2, 3, 4]               从倒数第一位开始截取两个元素，元素不够，只返回存在的元素
+
+a = [1, 2, 3, 4, 5]
+console.log(a.splice(0, 2, 'a', 'b', 'c'))  // [1, 2]
+console.log(a)                              // ["a", "b", "c", 3, 4, 5]   截取后将value一次填充到数组被截取的位置，value的数量大于截取的数量时，数组中剩余的元素后移
+```
+
+> reduce()累计器
+
+```javascript
+let a = [1, 2, 3, 4, 5]
+let result = a.reduce((accumulator, currentValue, currentIndex, array)=>{
+  console.log(accumulator, currentValue, currentIndex, array)
+  return accumulator + currentValue
+  // 5  1 0 [1, 2, 3, 4, 5]  第一次accumulator的值为reduce第二个参数5, currentValue为数组第一个元素
+  // 6  2 1 [1, 2, 3, 4, 5]  第二次accumulator的值为5加上数组a中的第一个值，即是第一次循环时return的值
+  // 8  3 2 [1, 2, 3, 4, 5]  同上
+  // 11 4 3 [1, 2, 3, 4, 5]  同上 
+  // 15 5 4 [1, 2, 3, 4, 5]  同上
+}, 5)
+console.log(result)   // 20 为最终累计的和
+console.log(a)        // [1, 2, 3, 4, 5]
+
+// 无初始值时，accumulator的初始值为数组的第一个元素，currentValue为数组第二个元素
+result = a.reduce((accumulator, currentValue, currentIndex, array)=>{
+  console.log(accumulator, currentValue, currentIndex, array)
+  return accumulator + currentValue
+  // 1  2 1 [1, 2, 3, 4, 5]
+  // 3  3 2 [1, 2, 3, 4, 5]
+  // 6  4 3 [1, 2, 3, 4, 5]
+  // 10 5 4 [1, 2, 3, 4, 5]
+})
+console.log(result)   // 15 为最终累计的和
+console.log(a)        // [1, 2, 3, 4, 5]
+
+// Time
+a = []
+for(let i = 0; i < 10000000; i++) {
+  a.push(i)
+}
+let dateStart = Date.now()
+a.reduce((accumulator, currentValue, currentIndex, array)=>{
+  return accumulator + currentValue
+})
+let dateEnd = Date.now()
+console.log(dateEnd - dateStart) // 200ms 258ms 257ms 效率与forEach相差也不多，而且比forEach多个累计的功能
+```
+
+> [相关资料](https://juejin.im/post/5bb753bd6fb9a05d2272b673#heading-0)
 
 ## arguments如何转换成数组
 
 > Array.prototype.slice.call()
 
-```
+```javascript
 function sum(a,b){
     let args = Array.prototype.slice.call(arguments);
     console.log(args);
 }
 ```
 
+> Array.from()
 
+```javascript
+function sum(a, b) {
+  let args = Array.from(arguments);
+  console.log(args.reduce((sum, cur) => sum + cur));//args可以调用数组原生的方法啦
+}
+sum(1, 2);//3
+```
+
+> es6展开运算符
+
+```javascript
+function sum(a, b) {
+  let args = [...arguments];
+  console.log(args.reduce((sum, cur) => sum + cur));//args可以调用数组原生的方法啦
+}
+sum(1, 2);//3
+```
+
+> concat+apply
+
+```javascript
+function sum(a, b) {
+  let args = Array.prototype.concat.apply([], arguments);//apply方法会把第二个参数展开
+  console.log(args.reduce((sum, cur) => sum + cur));//args可以调用数组原生的方法啦
+}
+sum(1, 2);//3
+```
 
 ## 模拟实现call/apply
 
@@ -242,7 +475,7 @@ function Parent(){
     this.name = 'parent';
 }
 function Child(){
-    Parent1.call(this);
+    Parent.call(this);
     this.type = 'child'
 }
 console.log(new Child());
@@ -310,17 +543,78 @@ function inheritPrototype(subType,superType){
     subType.prototype =prototype;//指定对象
 }
 inheritPrototype(Child,Parent)
-//new Child()原型上构造器指向Parent
+//new Child()原型上构造器指向Child
 console.log(new Child());
 ```
 
 > 扩展Object.create(Parent.prototype)//创建一个新对象，使得新对象的proto属性指向Parent.prototype
 
-## 深入了解闭包
+## 执行环境/上下文
 
-> 闭包是指有权访问另一个函数作用域中的变量的函数。
+> **作用域**：作用域就是变量与函数的可访问范围，即作用域控制着变量与函数的可见性和生命周期。在JavaScript中，变量的作用域有全局作用域和局部作用域两种，局部作用域又称为函数作用域。
 >
-> 闭包只能取得包含函数中任何变量的最后一个值
+> **作用域链**：JavaScript上每一个函数执行时，会先在自己创建的`AO`（活动对象）上找对应属性值。若找不到则往父函数的AO上找，再找不到则再上一层的`AO`,直到找到大boss:`window`（全局作用域）。 而这一条形成的“`AO`链” 就是`JavaScript`中的作用域链。
+>
+> **执行上下文**：执行上下文就是当前 JavaScript 代码被解析和执行时所在环境的抽象概念， JavaScript 中运行任何的代码都是在执行上下文中运行。
+>
+> 执行上下文三种类型：
+>
+> - 全局执行上下文
+> - 函数执行上下文
+> - eval函数执行上下文
+>
+> 执行上下文创建过程：
+>
+> - 确定this指向
+> - 创建词法环境
+> - 创建变量对象
 
-   
+## new的过程
 
+> 模拟实现new的效果
+
+```javascript
+function newMethod(ctor,...args){
+    if(typeof ctor !== 'function'){
+       throw 'newOperator function the first param must be a function';
+    }
+    //创建一个新对象
+    let obj = new Object();
+    //对象的__proto__指向构造函数的原型对象。
+    obj.__proto__=Object.create(ctor.prototype);
+    //改变this指向，继承构造函数的属性，创建实例。
+    let res =ctor.apply(obj,...args);
+    let isObject = typeof res === 'object' && typeof res !==null;
+    let isFunction = typeof res === 'function';
+    //如果res是基本数据类型，则返回空对象。
+    return isObject || isFunction ? res:obj;
+}
+```
+
+## bind函数的实现原理
+
+```javascript
+if (!Function.prototype.bind) (function(){
+  var slice = Array.prototype.slice;
+  Function.prototype.bind = function() {
+      //保存原函数，获取this的指向
+    var thatFunc = this, thatArg = arguments[0];
+      //获取参数
+    var args = slice.call(arguments, 1);
+      //如果调用对象不是函数，则报错
+    if (typeof thatFunc !== 'function') {
+      // closest thing possible to the ECMAScript 5
+      // internal IsCallable function
+      throw new TypeError('Function.prototype.bind - ' +
+             'what is trying to be bound is not callable');
+    }
+    return function(){
+      //拼接参数 
+      var funcArgs = args.concat(slice.call(arguments))
+      return thatFunc.apply(thatArg, funcArgs);
+    };
+  };
+})();
+```
+
+> 有两次参数传递的过程
